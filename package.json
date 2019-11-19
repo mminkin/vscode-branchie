@@ -1,0 +1,72 @@
+{
+	"name": "branchie",
+	"displayName": "branchie",
+	"description": "Show all files changed in branch",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.40.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+    "onView:branchie-files",
+		"onCommand:extension.helloWorld"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "branchie",
+          "title": "Branchie",
+          "icon": "./resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "branchie": [
+        {
+          "id": "branchie-files",
+          "name": "RoRy"
+        }
+      ]
+    },
+		"commands": [
+			{
+				"command": "extension.helloWorld",
+				"title": "Hello World"
+      },
+      {
+				"command": "branchie.addEntry",
+				"title": "Add"
+			}
+    ],
+    "menus": {
+			"view/title": [
+				{
+					"command": "branchie.addEntry",
+					"when": "view == branchie-files"
+        }
+      ]
+    }
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^5.2.7",
+		"@types/node": "^12.11.7",
+		"@types/vscode": "^1.40.0",
+		"glob": "^7.1.5",
+		"mocha": "^6.2.2",
+		"typescript": "^3.6.4",
+		"tslint": "^5.20.0",
+		"vscode-test": "^1.2.2"
+	}
+}
