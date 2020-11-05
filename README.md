@@ -16,7 +16,11 @@ This a hacky hack, so all the issues.
 
 ## Release Notes
 
-### 1.0.0
+### 0.1.0
+
+Another hackweek, another round of improvements!
+
+### 0.0.0
 
 Grand unraveling of Branchie.
 

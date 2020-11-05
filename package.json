@@ -2,16 +2,17 @@
   "name": "branchie",
   "displayName": "branchie",
   "description": "Show all files changed in branch",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "mminki",
   "engines": {
-    "vscode": "^1.40.0"
+    "vscode": "^1.50.0"
   },
   "categories": [
     "Other"
   ],
   "activationEvents": [
-    "onView:branchie-changes",
+    "onView:branchie-staged",
+    "onView:branchie-modified",
     "onView:branchie-committed",
     "onCommand:extension.helloWorld"
   ],
@@ -29,8 +30,12 @@
     "views": {
       "branchie": [
         {
-          "id": "branchie-changes",
-          "name": "Current"
+          "id": "branchie-staged",
+          "name": "Staged"
+        },
+        {
+          "id": "branchie-modified",
+          "name": "Modified"
         },
         {
           "id": "branchie-committed",
@@ -41,24 +46,62 @@
     "commands": [
       {
         "command": "branchie.refresh",
-        "title": "Refresh"
+        "title": "Refresh",
+        "icon": "$(refresh)"
       },
       {
         "command": "branchie.open",
         "title": "Open"
+      },
+      {
+        "command": "branchie.stage",
+        "title": "Stage",
+        "icon": "$(add)"
+      },
+      {
+        "command": "branchie.unstage",
+        "title": "Unstage",
+        "icon": "$(remove)"
+      },
+      {
+        "command": "branchie.commit.new",
+        "title": "Commit"
+      },
+      {
+        "command": "branchie.commit.amend",
+        "title": "Amend"
       }
     ],
     "menus": {
       "view/title": [
         {
           "command": "branchie.refresh",
-          "when": "view == branchie-changes || view == branchie-committed"
+          "when": "view == branchie-staged || view == branchie-modified || view == branchie-committed",
+          "group": "navigation"
+        },
+        {
+          "command": "branchie.commit.new",
+          "when": "view == branchie-staged"
+        },
+        {
+          "command": "branchie.commit.amend",
+          "when": "view == branchie-staged"
         }
       ],
       "view/item/context": [
         {
           "command": "branchie.open",
-          "when": "view == branchie-changes || view == branchie-committed"
+          "when": "viewItem == file && (view == branchie-staged || view == branchie-modified || view == branchie-committed)"
+        },
+        {
+          "command": "branchie.stage",
+          "when": "viewItem == file && view == branchie-modified",
+          "group": "inline"
+        },
+        {
+          "command": "branchie.unstage",
+          "when": "viewItem == file && view == branchie-staged",
+          "group": "inline"
         }
       ]
     }
@@ -71,14 +114,14 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/glob": "^7.1.1",
+    "@types/glob": "^7.1.3",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^12.11.7",
-    "@types/vscode": "^1.40.0",
+    "@types/node": "^12.19.3",
+    "@types/vscode": "^1.50.0",
     "glob": "^7.1.5",
-    "mocha": "^6.2.2",
-    "typescript": "^3.6.4",
+    "mocha": "^6.2.3",
     "tslint": "^5.20.0",
-    "vscode-test": "^1.2.2"
+    "typescript": "^3.9.7",
+    "vscode-test": "^1.4.1"
   }
 }
