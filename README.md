@@ -1,6 +1,6 @@
 # Branchie
 
-From the creators of Yammer, the best workplace social media network - Branchie, a small but fierce VSCode extension. 
+From the creators of Yammer, the best workplace social media network - Branchie, a small but fierce [VSCode extension](https://marketplace.visualstudio.com/items?itemName=mminki.branchie). 
 
 ## Features
 
@@ -16,7 +16,11 @@ This a hacky hack, so all the issues.
 
 ## Release Notes
 
-### 1.0.0
+### 0.2.0
+
+Another hackweek, another round of improvements!
+
+### 0.0.0
 
 Grand unraveling of Branchie.
 

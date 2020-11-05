@@ -1,42 +1,30 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
-import { CurrentTreeProvider, CommittedTreeProvider } from './branchDiffProvider';
-import { GitExtension, API as GitApi } from './git';
+import {
+  commands,
+  ExtensionContext,
+  extensions,
+  Uri,
+  window,
+  workspace,
+} from "vscode";
+import {
+  CommittedTreeProvider,
+  ModifiedTreeProvider,
+  StagedTreeProvider,
+} from "./branchieTreeProvider";
+import { GitExtension, API as GitApi } from "./git";
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export async function activate(context: vscode.ExtensionContext) {
+export async function activate(context: ExtensionContext) {
+  console.log("Rise and grind! branchie is now active!");
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "branchie" is now active!');
-  
   const gitApi = await getGitApi();
   if (!gitApi) {
-    vscode.window.showErrorMessage("Git was not found");
+    window.showErrorMessage("Git was not found");
     return;
   }
 
-  const workingTreeProvider = new CurrentTreeProvider(gitApi);
-  const committedTreeProvider = new CommittedTreeProvider(gitApi);
-
-
-  vscode.window.registerTreeDataProvider('branchie-changes', workingTreeProvider);
-  vscode.window.registerTreeDataProvider('branchie-committed', committedTreeProvider);
-
-  let command = vscode.commands.registerCommand('branchie.refresh', () => {
-    workingTreeProvider.refresh();
-    committedTreeProvider.refresh();
-  }); 
-
-  vscode.commands.registerCommand('branchie.open', (uri: vscode.Uri) => {
-    vscode.workspace.openTextDocument(uri).then(doc => {
-      vscode.window.showTextDocument(doc);
-   });
-  });
-
-  context.subscriptions.push(command);
+  const { refreshViews } = initiallizeViews(gitApi);
+  workspace.onWillSaveTextDocument(refreshViews);
+  initiallizeCommands(context, refreshViews);
 }
 
 // this method is called when your extension is deactivated
@@ -44,12 +32,79 @@ export function deactivate() {}
 
 async function getGitApi(): Promise<GitApi | undefined> {
   try {
-    const extension = vscode.extensions.getExtension<GitExtension>('vscode.git');
+    const extension = extensions.getExtension<GitExtension>("vscode.git");
     if (extension !== undefined) {
-      const gitExtension = extension.isActive ? extension.exports : await extension.activate();
+      const gitExtension = extension.isActive
+        ? extension.exports
+        : await extension.activate();
       return gitExtension.getAPI(1);
     }
   } catch {}
 
   return undefined;
 }
+
+const initiallizeViews = (gitApi: GitApi) => {
+  const treeProviders = [
+    new StagedTreeProvider(gitApi),
+    new ModifiedTreeProvider(gitApi),
+    new CommittedTreeProvider(gitApi),
+  ];
+
+  treeProviders.forEach((treeProvider) => {
+    window.registerTreeDataProvider(
+      `branchie-${treeProvider.name}`,
+      treeProvider
+    );
+  });
+
+  return {
+    refreshViews: () => {
+      treeProviders.forEach((treeProvider) => {
+        treeProvider.refresh();
+      });
+    },
+  };
+};
+
+const initiallizeCommands = (
+  context: ExtensionContext,
+  refreshViews: () => void
+) => {
+  const openFile = (uri: Uri) => {
+    workspace.openTextDocument(uri).then((doc) => {
+      window.showTextDocument(doc);
+    });
+  };
+
+  const stageFiles = async () => {
+    await commands.executeCommand("git.stage");
+    refreshViews();
+  };
+
+  const unstageFiles = async () => {
+    await commands.executeCommand("git.unstage");
+    refreshViews();
+  };
+
+  const commit = async () => {
+    await commands.executeCommand("git.commitStaged");
+    refreshViews();
+  };
+
+  const amend = async () => {
+    await commands.executeCommand("git.commitStagedAmendNoVerify");
+    refreshViews();
+  };
+
+  const commandList = [
+    commands.registerCommand("branchie.refresh", refreshViews),
+    commands.registerCommand("branchie.open", openFile),
+    commands.registerCommand("branchie.stage", stageFiles),
+    commands.registerCommand("branchie.unstage", unstageFiles),
+    commands.registerCommand("branchie.commit.new", commit),
+    commands.registerCommand("branchie.commit.amend", amend),
+  ];
+
+  commandList.forEach((command) => context.subscriptions.push(command));
+};
