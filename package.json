@@ -1,15 +1,29 @@
 {
   "name": "branchie",
-  "displayName": "branchie",
+  "displayName": "Branchie",
   "description": "Show all files changed in branch",
   "repository": "https://github.com/mminkin/vscode-branchie.git",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "mminki",
   "engines": {
     "vscode": "^1.50.0"
   },
+  "icon": "resources/branchie-avatar.png",
+  "galleryBanner": {
+    "color": "#f5731d",
+    "theme": "light"
+  },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "git",
+    "branch",
+    "branches",
+    "branchie",
+    "commits",
+    "view commits",
+    "committed"
   ],
   "activationEvents": [
     "onView:branchie-staged",
@@ -24,7 +38,7 @@
         {
           "id": "branchie",
           "title": "Branchie",
-          "icon": "./resources/icon.svg"
+          "icon": "./resources/branchie-icon.svg"
         }
       ]
     },

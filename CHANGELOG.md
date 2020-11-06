@@ -11,6 +11,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Refresh and other action show as icons instead of text
 - Files have the path show next the them
 - Branchie will refresh on any file save
+- New icon :)
 - Updated dependencies and other under the hood tweaks
 
 ## [Unreleased]
