@@ -1,110 +1,63 @@
-import {
-  commands,
-  ExtensionContext,
-  extensions,
-  Uri,
-  window,
-  workspace,
-} from "vscode";
-import {
-  CommittedTreeProvider,
-  ModifiedTreeProvider,
-  StagedTreeProvider,
-} from "./branchieTreeProvider";
-import { GitExtension, API as GitApi } from "./git";
+import { ConfigurationTarget, ExtensionContext, workspace } from "vscode";
+import { BranchieConsole } from "./branchieConsole";
+
+import { BranchieViews } from "./branchieViews";
+import { BranchieCommands } from "./branchieCommands";
+import { OpenBranchFilesStorageManager, EditorsManager } from "./files";
+import { GitHelper } from "./git";
+
+let openBranchFilesStorageManager: OpenBranchFilesStorageManager;
 
 export async function activate(context: ExtensionContext) {
-  console.log("Rise and grind! branchie is now active!");
+  const console = new BranchieConsole();
 
-  const gitApi = await getGitApi();
-  if (!gitApi) {
-    window.showErrorMessage("Git was not found");
-    return;
-  }
+  await overrideVSCodeWidndowRestore(console);
 
-  const { refreshViews } = initiallizeViews(gitApi);
-  workspace.onWillSaveTextDocument(refreshViews);
-  initiallizeCommands(context, refreshViews);
-}
+  const gitHelper = await GitHelper.build(console);
+  const editorManager = new EditorsManager(console);
 
-// this method is called when your extension is deactivated
-export function deactivate() {}
+  openBranchFilesStorageManager = new OpenBranchFilesStorageManager(
+    context.workspaceState,
+    editorManager,
+    gitHelper,
+    console
+  );
 
-async function getGitApi(): Promise<GitApi | undefined> {
-  try {
-    const extension = extensions.getExtension<GitExtension>("vscode.git");
-    if (extension !== undefined) {
-      const gitExtension = extension.isActive
-        ? extension.exports
-        : await extension.activate();
-      return gitExtension.getAPI(1);
-    }
-  } catch {}
+  const branchieViews = new BranchieViews();
+  branchieViews.initiallize(gitHelper, openBranchFilesStorageManager);
 
-  return undefined;
-}
+  workspace.onDidChangeTextDocument(branchieViews.refreshViews);
+  workspace.onWillSaveTextDocument(branchieViews.refreshViews);
 
-const initiallizeViews = (gitApi: GitApi) => {
-  const treeProviders = [
-    new StagedTreeProvider(gitApi),
-    new ModifiedTreeProvider(gitApi),
-    new CommittedTreeProvider(gitApi),
-  ];
+  const branchieCommands = new BranchieCommands(console);
+  branchieCommands.initiallize(context, branchieViews);
 
-  treeProviders.forEach((treeProvider) => {
-    window.registerTreeDataProvider(
-      `branchie-${treeProvider.name}`,
-      treeProvider
-    );
+  gitHelper.onChangesInRepo(async () => {
+    console.log("repo change detected");
+    await openBranchFilesStorageManager.restoreBranchFiles();
+    branchieViews.refreshViews();
   });
+}
 
-  return {
-    refreshViews: () => {
-      treeProviders.forEach((treeProvider) => {
-        treeProvider.refresh();
-      });
-    },
-  };
-};
+export function deactivate() {
+  openBranchFilesStorageManager.saveCurrentBranchFiles();
+}
 
-const initiallizeCommands = (
-  context: ExtensionContext,
-  refreshViews: () => void
-) => {
-  const openFile = (uri: Uri) => {
-    workspace.openTextDocument(uri).then((doc) => {
-      window.showTextDocument(doc);
-    });
-  };
+async function overrideVSCodeWidndowRestore(console: BranchieConsole) {
+  const settingName = "restoreWindows";
+  const disableSetting = "none";
 
-  const stageFiles = async () => {
-    await commands.executeCommand("git.stage");
-    refreshViews();
-  };
+  console.log("checking your user settings");
+  const windowConfiguration = workspace.getConfiguration("window");
+  const setting = windowConfiguration.get(settingName);
+  console.log(`${settingName}: ${setting}`);
 
-  const unstageFiles = async () => {
-    await commands.executeCommand("git.unstage");
-    refreshViews();
-  };
-
-  const commit = async () => {
-    await commands.executeCommand("git.commitStaged");
-    refreshViews();
-  };
-
-  const amend = async () => {
-    await commands.executeCommand("git.commitStagedAmendNoVerify");
-    refreshViews();
-  };
-
-  const commandList = [
-    commands.registerCommand("branchie.refresh", refreshViews),
-    commands.registerCommand("branchie.open", openFile),
-    commands.registerCommand("branchie.stage", stageFiles),
-    commands.registerCommand("branchie.unstage", unstageFiles),
-    commands.registerCommand("branchie.commit.new", commit),
-    commands.registerCommand("branchie.commit.amend", amend),
-  ];
-
-  commandList.forEach((command) => context.subscriptions.push(command));
-};
+  if (setting !== disableSetting) {
+    await windowConfiguration.update(
+      settingName,
+      disableSetting,
+      ConfigurationTarget.Global
+    );
+    console.log(`updated ${settingName} to ${disableSetting}`);
+  }
+}

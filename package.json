@@ -1,9 +1,9 @@
 {
   "name": "branchie",
   "displayName": "Branchie",
-  "description": "Show all files changed in branch",
+  "description": "Jump from branch to branch without losing focus",
   "repository": "https://github.com/mminkin/vscode-branchie.git",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "publisher": "mminki",
   "engines": {
     "vscode": "^1.50.0"
@@ -26,10 +26,7 @@
     "committed"
   ],
   "activationEvents": [
-    "onView:branchie-staged",
-    "onView:branchie-modified",
-    "onView:branchie-committed",
-    "onCommand:extension.helloWorld"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -45,16 +42,12 @@
     "views": {
       "branchie": [
         {
-          "id": "branchie-staged",
-          "name": "Staged"
-        },
-        {
-          "id": "branchie-modified",
-          "name": "Modified"
+          "id": "branchie-open",
+          "name": "Opened Last Session"
         },
         {
           "id": "branchie-committed",
-          "name": "Committed"
+          "name": "Committed to Branch"
         }
       ]
     },
@@ -67,58 +60,32 @@
       {
         "command": "branchie.open",
         "title": "Open"
-      },
-      {
-        "command": "branchie.stage",
-        "title": "Stage",
-        "icon": "$(add)"
-      },
-      {
-        "command": "branchie.unstage",
-        "title": "Unstage",
-        "icon": "$(remove)"
-      },
-      {
-        "command": "branchie.commit.new",
-        "title": "Commit"
-      },
-      {
-        "command": "branchie.commit.amend",
-        "title": "Amend"
       }
     ],
     "menus": {
       "view/title": [
         {
           "command": "branchie.refresh",
-          "when": "view == branchie-staged || view == branchie-modified || view == branchie-committed",
+          "when": "view == branchie-committed || view == branchie-open",
           "group": "navigation"
-        },
-        {
-          "command": "branchie.commit.new",
-          "when": "view == branchie-staged"
-        },
-        {
-          "command": "branchie.commit.amend",
-          "when": "view == branchie-staged"
         }
       ],
       "view/item/context": [
         {
           "command": "branchie.open",
-          "when": "viewItem == file && (view == branchie-staged || view == branchie-modified || view == branchie-committed)"
-        },
-        {
-          "command": "branchie.stage",
-          "when": "viewItem == file && view == branchie-modified",
-          "group": "inline"
-        },
-        {
-          "command": "branchie.unstage",
-          "when": "viewItem == file && view == branchie-staged",
-          "group": "inline"
+          "when": "viewItem == file && (view == branchie-committed || view == branchie-open)"
         }
       ]
+    },
+    "configuration": {
+      "title": "Branchie",
+      "properties": {
+        "branchie.log": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show logging in output channel"
+        }
+      }
     }
   },
   "scripts": {
