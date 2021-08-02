@@ -2,7 +2,12 @@
 
 All notable changes to the "branchie" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## v1.0.0
+
+- Removed Modified and Staged views, and all git related commands
+- Added "Opened Last Session" view that shows files which were opened last time user worked on this branch
+- Added console channel for extension and setting to shut it up
+- Refactored everything into neat classes and put in folders
 
 ## v0.2.0
 
