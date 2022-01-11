@@ -11,20 +11,20 @@ let openBranchFilesStorageManager: OpenBranchFilesStorageManager;
 export async function activate(context: ExtensionContext) {
   const console = new BranchieConsole();
 
-  await overrideVSCodeWidndowRestore(console);
+  // await overrideVSCodeWidndowRestore(console);
 
   const gitHelper = await GitHelper.build(console);
-  const editorManager = new EditorsManager(console);
+  // const editorManager = new EditorsManager(console);
 
-  openBranchFilesStorageManager = new OpenBranchFilesStorageManager(
-    context.workspaceState,
-    editorManager,
-    gitHelper,
-    console
-  );
+  // openBranchFilesStorageManager = new OpenBranchFilesStorageManager(
+  //   context.workspaceState,
+  //   editorManager,
+  //   gitHelper,
+  //   console
+  // );
 
-  const branchieViews = new BranchieViews();
-  branchieViews.initiallize(gitHelper, openBranchFilesStorageManager);
+  const branchieViews = new BranchieViews(console);
+  branchieViews.initiallize(gitHelper);
 
   workspace.onDidChangeTextDocument(branchieViews.refreshViews);
   workspace.onWillSaveTextDocument(branchieViews.refreshViews);

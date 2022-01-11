@@ -1,6 +1,6 @@
 import { extensions, window } from "vscode";
 import { BranchieConsole } from "../branchieConsole";
-import { GitExtension, API as GitApi } from "./git";
+import { GitExtension, API as GitApi, Repository, Commit } from "./git";
 
 export class GitHelperBuilder {
   async init(console: BranchieConsole) {
@@ -73,5 +73,31 @@ export class GitHelper {
 
   onChangesInRepo(listener: (e: void) => any) {
     return this.getCurrentRepo().state.onDidChange(listener);
+  }
+}
+
+export class GitRepoHelper {
+  static getMasterCommitHash(repo: Repository) {
+    const master = repo.state.refs.find((r) => r.name === "master");
+    return master?.commit;
+  }
+
+  static getHeadCommitHash(repo: Repository) {
+    const head = repo.state.HEAD;
+    return head?.commit;
+  }
+
+  static async getPreviousCommitFromHash(
+    repo: Repository,
+    commit: string
+  ): Promise<string | undefined> {
+    return repo.getCommit(commit).then((commitObject) => {
+      return GitRepoHelper.getPreviousCommit(commitObject);
+    });
+  }
+
+  static getPreviousCommit(commit: Commit): string | undefined {
+    const parents = commit.parents;
+    return parents.length === 1 ? parents[0] : undefined;
   }
 }

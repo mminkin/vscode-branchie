@@ -1,4 +1,4 @@
-import { TreeItem } from "vscode";
+import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import { Uri } from "vscode";
 
 export class FileItem extends TreeItem {
@@ -20,6 +20,15 @@ export class FileItem extends TreeItem {
       title: "open file",
       arguments: [uri],
     };
+  }
+}
+
+export class CommitItem extends TreeItem {
+  constructor(label: string, id: string) {
+    super(label);
+    this.id = id;
+    this.contextValue = "commit";
+    this.collapsibleState = TreeItemCollapsibleState.Expanded;
   }
 }
 

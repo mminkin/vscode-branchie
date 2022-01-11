@@ -1,2 +1,2 @@
-export { CommittedTreeProvider } from "./branchieTreeProvider";
-export { OpenFilesTreeProvider } from "./openFilesTreeProvider";
+export { WholeBranchTreeProvider } from "./WholeBranchTreeProvider";
+export { CommitsTreeProvider } from "./CommitsTreeProvider";

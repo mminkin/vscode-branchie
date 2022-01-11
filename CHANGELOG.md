@@ -2,6 +2,13 @@
 
 All notable changes to the "branchie" extension will be documented in this file.
 
+## v2.0.0
+
+- Removed Opened Last Session view
+- Added Commits in Branch view instead
+- Refactored everything again, deleted dead code
+- Updated all packages
+
 ## v1.0.0
 
 - Removed Modified and Staged views, and all git related commands

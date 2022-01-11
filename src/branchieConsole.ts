@@ -9,7 +9,7 @@ export class BranchieConsole {
     if (this.isLoggingEnbaled()) {
       this.channel.show();
     }
-    this.log("🌤 Rise and grind! branchie is now active!");
+    this.log("🌤 Rise and grind! Branchie is now active!");
   }
 
   isLoggingEnbaled() {
