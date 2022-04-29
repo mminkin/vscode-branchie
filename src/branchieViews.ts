@@ -1,22 +1,19 @@
 import { window } from "vscode";
 import { GitHelper } from "./git";
-import { OpenBranchFilesStorageManager } from "./files";
-import { CommittedTreeProvider, OpenFilesTreeProvider } from "./treeProviders";
+import { WholeBranchTreeProvider, CommitsTreeProvider } from "./treeProviders";
+import { BranchieConsole } from "./branchieConsole";
 
 export class BranchieViews {
   refreshViews: () => void;
 
-  constructor() {
+  constructor(private console: BranchieConsole) {
     this.refreshViews = () => {};
   }
 
-  initiallize(
-    gitHelper: GitHelper,
-    openBranchFilesStorageManager: OpenBranchFilesStorageManager
-  ) {
+  initiallize(gitHelper: GitHelper) {
     const treeProviders = [
-      new OpenFilesTreeProvider(openBranchFilesStorageManager),
-      new CommittedTreeProvider(gitHelper),
+      new WholeBranchTreeProvider(gitHelper),
+      new CommitsTreeProvider(gitHelper),
     ];
 
     treeProviders.forEach((treeProvider) => {

@@ -7,10 +7,13 @@ import {
   Uri,
 } from "vscode";
 import { GitHelper, Change, Repository } from "../git";
-import { FileItem, FileItemList } from "./fileItem";
+import { FileItem, FileItemList } from "./BranchieTreeItem";
 
-abstract class BranchieTreeProviderBase implements TreeDataProvider<TreeItem> {
+export abstract class BranchieTreeProviderBase
+  implements TreeDataProvider<TreeItem>
+{
   protected repo: Repository;
+  protected emptyList = new FileItemList().empty();
 
   readonly name: string;
 
@@ -34,6 +37,25 @@ abstract class BranchieTreeProviderBase implements TreeDataProvider<TreeItem> {
   }
 
   abstract getChildren(element?: TreeItem): ProviderResult<TreeItem[]>;
+
+  createFileItems(changes: Change[]) {
+    return new FileItemList<Change>().from(changes, (change) => {
+      return Uri.parse(change.uri.path);
+    });
+  }
+
+  async getFileItemsBetween(
+    commit: string | undefined,
+    earlierCommit: string | undefined
+  ): Promise<TreeItem[]> {
+    if (!commit || !earlierCommit || commit === earlierCommit) {
+      return this.emptyList;
+    }
+
+    return this.repo
+      .diffBetween(commit, earlierCommit)
+      .then(this.createFileItems);
+  }
 }
 
 export class StagedTreeProvider extends BranchieTreeProviderBase {
@@ -60,37 +82,5 @@ export class ModifiedTreeProvider extends BranchieTreeProviderBase {
     return new FileItemList<Change>().from(changes, (change) => {
       return Uri.parse(change.uri.path);
     });
-  }
-}
-
-export class CommittedTreeProvider extends BranchieTreeProviderBase {
-  constructor(gitHelper: GitHelper) {
-    super("committed", gitHelper);
-  }
-
-  async getChildren(element?: TreeItem): Promise<TreeItem[]> {
-    const master = this.repo.state.refs.find((r) => r.name === "master");
-    const emptyList = new FileItemList().empty();
-    if (!master || !master.commit) {
-      return emptyList;
-    }
-    const head = this.repo.state.HEAD;
-    if (!head || !head.commit) {
-      return emptyList;
-    }
-
-    const masterReference = master.commit;
-    const headReference = head.commit;
-    if (masterReference === headReference) {
-      return emptyList;
-    }
-
-    return this.repo
-      .diffBetween(masterReference, headReference)
-      .then((changes) => {
-        return new FileItemList<Change>().from(changes, (change) => {
-          return Uri.parse(change.uri.path);
-        });
-      });
   }
 }
