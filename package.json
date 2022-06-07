@@ -3,10 +3,10 @@
   "displayName": "Branchie",
   "description": "Jump from branch to branch without losing focus",
   "repository": "https://github.com/mminkin/vscode-branchie.git",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "publisher": "mminki",
   "engines": {
-    "vscode": "1.66.0"
+    "vscode": "^1.66.0"
   },
   "icon": "resources/branchie-avatar.png",
   "galleryBanner": {
