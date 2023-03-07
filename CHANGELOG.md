@@ -2,6 +2,11 @@
 
 All notable changes to the "branchie" extension will be documented in this file.
 
+## v2.0.1
+
+ - Fixed Branchie after breaking changes in Git API
+ - Added master branch name configuration because it might not be "master" for everyone
+
 ## v2.0.0
 
 - Removed Opened Last Session view

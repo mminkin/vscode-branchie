@@ -10,22 +10,23 @@ export class CommitsTreeProvider extends BranchieTreeProviderBase {
   }
 
   async getChildren(element?: TreeItem): Promise<TreeItem[]> {
-    const master = GitRepoHelper.getMasterCommitHash(this.repo);
-    const head = GitRepoHelper.getHeadCommitHash(this.repo);
+    return GitRepoHelper.getMasterCommitHash(this.repo).then((master) => {
+      const head = GitRepoHelper.getHeadCommitHash(this.repo);
 
-    if (!head || !master) {
+      if (!head || !master) {
+        return this.emptyList;
+      }
+
+      if (!element) {
+        return this.getCommitsListRecursionStart(master, head);
+      }
+
+      if (element.contextValue === "commit") {
+        return this.getCommitChildren(element.id);
+      }
+
       return this.emptyList;
-    }
-
-    if (!element) {
-      return this.getCommitsListRecursionStart(master, head);
-    }
-
-    if (element.contextValue === "commit") {
-      return this.getCommitChildren(element.id);
-    }
-
-    return this.emptyList;
+    });
   }
 
   async getCommitsListRecursionStart(master: string, head: string) {

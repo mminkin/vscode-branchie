@@ -1,4 +1,5 @@
 import { extensions, window } from "vscode";
+import { BranchieConfiguration } from "../branchieConfiguration";
 import { BranchieConsole } from "../branchieConsole";
 import { GitExtension, API as GitApi, Repository, Commit } from "./git";
 
@@ -77,9 +78,11 @@ export class GitHelper {
 }
 
 export class GitRepoHelper {
-  static getMasterCommitHash(repo: Repository) {
-    const master = repo.state.refs.find((r) => r.name === "master");
-    return master?.commit;
+  static async getMasterCommitHash(repo: Repository) {
+    const master = BranchieConfiguration.getMasterBranchName();
+    return repo.getBranch(master).then((branch) => {
+      return branch.commit
+    });
   }
 
   static getHeadCommitHash(repo: Repository) {

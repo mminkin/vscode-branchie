@@ -9,9 +9,10 @@ export class WholeBranchTreeProvider extends BranchieTreeProviderBase {
   }
 
   async getChildren(element?: TreeItem): Promise<TreeItem[]> {
-    const master = GitRepoHelper.getMasterCommitHash(this.repo);
     const head = GitRepoHelper.getHeadCommitHash(this.repo);
-
-    return this.getFileItemsBetween(master, head);
+    return GitRepoHelper.getMasterCommitHash(this.repo).then(master => {
+      
+      return this.getFileItemsBetween(master, head);
+    });
   }
 }

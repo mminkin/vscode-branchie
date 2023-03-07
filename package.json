@@ -84,6 +84,11 @@
           "type": "boolean",
           "default": false,
           "description": "Show logging in output channel"
+        },
+        "branchie.masterBranch": {
+          "type": "string",
+          "default": "master",
+          "description": "Name of master branch"
         }
       }
     }
